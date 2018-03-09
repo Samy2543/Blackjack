@@ -13,8 +13,13 @@
 	var figuras = ["Espadas", "Corazones", "Diamantes", "Trebol"];
 	var valores = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", 
 				  "Q", "K", "A",];
-
 	var mazo = new Array();
+
+	var jugadores = new Array();
+	var jugActual = 0;
+
+
+
 
 	function crearMazo(){ //Creamos la baraja 
 		mazo = new Array();
@@ -34,6 +39,41 @@
 		}
 	}
 
+	function crearJugadores(total){
+		jugadores = new Array();
+
+		for(var i = 1; i<=total;i++){
+			var mano = new Array();
+			var jugador = {Nombre: 'Jugador' + i, Id: i, Puntos: 0, Mano: mano}; 
+			jugadores.push(jugador); 
+		}
+	}
+
+	function interfazJugadores(){
+		document.getElementById('losJugadores').innerHTML = '';
+
+		for(var i = 0; i<jugadores.length;i++){
+
+			var cuadroJugador = document.createElement('div');
+			var cuadroId = document.createElement('div');
+			var cuadroMano = document.createElement('div');
+			var cuadroPuntos =document.createElement('div');
+
+			cuadroPuntos.className= 'puntos';
+			cuadroPuntos.id = 'puntos_' + i;
+			cuadroJugador.id = 'jugador_' + i;
+			cuadroJugador.className= 'jugador';
+			cuadroMano.id = 'mano_' + i; 
+
+			cuadroId.innerHTML = jugadores[i].Id;
+			cuadroJugador.appendChild(cuadroId);
+			cuadroJugador.appendChild(cuadroMano);
+			cuadroJugador.appendChild(cuadroPuntos);
+			document.getElementById('losJugadores').appendChild(cuadroJugador); 
+
+		}
+	}
+
 	function barajar(){ // Revolvemos las cartas
 		for(var i = 0; i<1000; i++){
 			var posicionUno = Math.floor((Math.random() * mazo.length));
@@ -46,11 +86,192 @@
 		}
 	}
 
+	function iniciar(){
+		jugActual = 0;
+		crearMazo();
+		barajar();
+		crearJugadores(2);
+		interfazJugadores();
+		repartirManos();
+		document.getElementById('jugador_' + jugActual).classList.add('active');
 
 
+	}
+
+	
+
+	
+
+	function repartirManos(){ //Repartimos las manos dealHands()
+
+		for(var i = 0; i<2; i++){
+			for(var j = 0; j<jugadores.length;j++){
+				var carta = mazo.pop();
+				jugadores[j].Mano.push(carta);
+				agregarCarta(carta,j); //renderCard
+				actualizarPts();
+
+			}
+		}
+		actualizarMazo();
+	}
+
+	function agregarCarta(carta,jugador){
+		var mano = document.getElementById('mano_' + jugador);
+		mano.appendChild(tomarCarta(carta)); 
+	}
+
+	function tomarCarta(carta){ //Tomar carta de la interfaz 
+		var cartita = document.createElement('div');
+		cartita.className = 'lasCartas';
+		cartita.innerHTML = carta.Figura + ' ' + carta.Valor;
+		return cartita; 
+	}
+
+	function obtenerPuntos(jugador){
+		var puntos = 0;
+		for(var i = 0; i<jugadores[jugador].Mano.length;i++){
+			puntos+= jugadores[jugador].Mano[i].Peso;
+		}
+		jugadores[jugador].Puntos = puntos; 
+		return puntos; 
+	}
+
+	function actualizarPts(){
+		for (var i = 0; i<jugadores.length; i++){
+			obtenerPuntos(i);
+			document.getElementById('puntos_' + i).innerHTML = jugadores[i].Puntos; 
+		}
+	}
+
+
+
+	function tomar(){ //hitMe
+		var carta = mazo.pop();
+		jugadores[jugActual].Mano.push(carta);
+		agregarCarta(carta,jugActual);
+		actualizarPts();
+		verificar();
+	}
+
+	function quedarse(){
+		if(jugActual != jugadores.length-1){
+			document.getElementById('jugador_' + jugActual).classList.remove('active'); 
+			jugActual+=1;
+			document.getElementById('jugador_' + jugActual).classList.add('active');
+		}else{
+			final();
+		}
+	}
+
+
+	function final(){
+		var ganador = -1; 
+		var puntaje = 0;
+
+		for(var i = 0; i<jugadores.length;i++){
+			if(jugadores[i].Puntos > puntaje && jugadores[i].Puntos < 22){
+				ganador = i;
+			}
+			puntaje = jugadores[i].Puntos;
+		}
+
+		document.getElementById('estado').innerHTML = 'Ganador: Jugador ' + jugadores[ganador].Id;  
+	}
+
+
+
+
+	function verificar(){
+		if(jugadores[jugActual].Puntos >21){
+			document.getElementById('estado').innerHTML = 'Jugador: ' + jugadores[jugActual].Id + ' perdio'; 
+		}
+	}
+
+
+	function actualizarMazo(){
+		document.getElementById('totalCartas').innerHTML = mazo.length;
+	}
+	
+	window.addEventListener('load',function(){
+		crearMazo();
+		barajar();
+		crearJugadores(1); 
+	});	
 
 
 	</script>
+
+	<style>
+        .tablero 
+        {
+            width: 700px;
+            border: solid 1px #ddd;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .lasCartas{
+            width: 70px;
+            height: 100px;
+            padding: 10px;
+            
+            background-color: white;
+            display: inline-block;
+            border-radius: 10px;
+            font-size: 8pt;
+            text-align: center;
+            margin: 3px;
+            color: red;
+            font-family: corbel;
+           
+        }
+
+        .losJugadores{
+            float:left;
+            width: 800px;
+        }
+
+        .jugador{
+            width: 40%;
+            border: solid 2px #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            display: inline-block;
+            margin:1%;
+            vertical-align: top;
+        }
+
+        .jugador.active{
+            border: solid 2px #1caff6;
+        }
+
+        .puntos{
+            text-align: center;
+            font-size: 20pt;
+            font-weight: bold;
+            margin: 10px;
+            font-family: corbel;
+        }
+
+        .mazo{
+            float:right;
+            width: 200px;
+        }
+
+        body{
+        	background-color: orange; 
+
+        }
+
+        p{
+        	font-family: corbel; 
+        }
+
+        button{
+        	border-radius: 10px;
+        }
+    </style>
 
 
 	</head>
@@ -60,11 +281,11 @@
 	<div class="tablero">
 		<p>BlackJack</p>
 
-		<input type = "button" class ="botones" value="iniciar" onclick="iniciar()"/>
+		<input type = "button" class ="botones" value="Empezar" onclick="iniciar()"/>
 
-		<input type = "button" class ="botones" value="tomar" onclick="tomar()"/>
+		<input type = "button" class ="botones" value="Tomar carta" onclick="tomar()"/>
 
-		<input type = "button" class ="botones" value="quedarse" onclick="quedarse()"/>
+		<input type = "button" class ="botones" value="Quedarse" onclick="quedarse()"/>
 
 		<div id = "losJugadores" class="losJugadores">
 		</div>
