@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Black jack</title>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="Description" content="Sample for HTML5" />
+
+	<script type="text/javascript">
+
+	var figuras = ["Espadas", "Corazones", "Diamantes", "Trebol"];
+	var valores = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", 
+				  "Q", "K", "A",];
+
+	var mazo = new Array();
+
+	function crearMazo(){ //Creamos la baraja 
+		mazo = new Array();
+
+		for(var i = 0; i<valores.length; i++){
+			for(var j = 0; j<figuras.length;j++){
+
+				var peso = parseInt(valores[i]);
+				if(valores[i] == "J" || valores[i] == "Q" ||  valores[i] == "K")
+					peso = 10;
+				if(valores[i] == "A")
+					peso = 11;
+				var carta = {Valor: valores[i], Figura: figuras[j], Peso: peso };
+				mazo.push(carta); 
+
+			}
+		}
+	}
+
+	function barajar(){ // Revolvemos las cartas
+		for(var i = 0; i<1000; i++){
+			var posicionUno = Math.floor((Math.random() * mazo.length));
+			var posicionDos = Math.floor ((Math.random() * mazo.length));
+
+			var auxiliar = mazo[posicionUno];
+			mazo[posicionUno] = mazo[posicionDos];
+			mazo[posicionDos] = auxiliar; 
+
+		}
+	}
+
+
+
+
+
+	</script>
+
+
+	</head>
+<body>
+
+
+	<div class="tablero">
+		<p>BlackJack</p>
+
+		<input type = "button" class ="botones" value="iniciar" onclick="iniciar()"/>
+
+		<input type = "button" class ="botones" value="tomar" onclick="tomar()"/>
+
+		<input type = "button" class ="botones" value="quedarse" onclick="quedarse()"/>
+
+		<div id = "losJugadores" class="losJugadores">
+		</div>
+
+		<div id ="mazo" class="mazo">
+			<div class ="lasCartas" id="totalCartas">52</div>
+			<div class = "estado" id="estado"></div>
+		</div>
+
+	<div class="limpieza"></div>
+
+	</div>
+
+</body>
+</html>
